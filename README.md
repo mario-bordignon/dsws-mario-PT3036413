@@ -35,12 +35,7 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 pip install -r requirements.txt
 ```
 
-## 2. Variáveis de ambiente
-
-Copie `.env.example` para `.env` e preencha com as chaves do Mailgun.
-O `.env` não vai para o GitHub.
-
-## 3. Criando o banco de dados
+## 2. Criando o banco de dados
 
 ```powershell
 flask shell
