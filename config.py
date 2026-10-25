@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+# Carrega o .env usando o caminho absoluto do projeto,
+# funcionando não importa de onde o Flask for iniciado
 load_dotenv(os.path.join(basedir, '.env'), override=True)
 
 
@@ -10,7 +12,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'chaveultrasecreta'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # --- Mailgun (valores do .env) ---
+    # --- Mailgun (valores vêm do .env) ---
     MAILGUN_API_URL = os.environ.get('MAILGUN_API_URL')
     MAILGUN_API_KEY = os.environ.get('MAILGUN_API_KEY')
     MAILGUN_FROM = os.environ.get('MAILGUN_FROM')
@@ -20,15 +22,11 @@ class Config:
     ALUNO_PRONTUARIO = 'PT3036413'
     ALUNO_NOME = 'Mario Bordignon'
 
-    # Recebem o aviso sempre:
+    # Recebem o aviso sempre, a cada novo usuário
+    # (além do e-mail que a própria pessoa digita no formulário)
     FLASKY_DESTINATARIOS_FIXOS = [
         'm.bordignon@aluno.ifsp.edu.br',
     ]
-
-    #   '1' -> FLASKY_CAIXA1
-    #   '2' -> FLASKY_CAIXA2
-    FLASKY_CAIXA_TESTE = '1'
-    FLASKY_CAIXA = os.environ.get(f'FLASKY_CAIXA{FLASKY_CAIXA_TESTE}')
 
     @staticmethod
     def init_app(app):

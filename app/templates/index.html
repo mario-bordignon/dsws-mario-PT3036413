@@ -11,17 +11,13 @@
 {% endfor %}
 
 <div class="page-header">
-{% if nome_completo %}
-    <h1>Olá, {{ nome_completo }}!</h1>
+    <h1>Olá, {% if nome_completo %}{{ nome_completo }}{% else %}Desconhecido{% endif %}!</h1>
     {% if not known %}
-        <p>Prazer em te conhecer!</p>
+        <p>Prazer em conhecê-lo!</p>
+        <p>E-mail enviado para o <strong>Administrador do sistema</strong>, notificando o cadastro de um novo usuário.</p>
     {% else %}
-        <p>Bom te ver novamente!</p>
+        <p>Que bom vê-lo novamente!</p>
     {% endif %}
-{% else %}
-    <h1>Olá estranho!</h1>
-    <p>Qual o seu nome?</p>
-{% endif %}
 </div>
 
 {{ wtf.quick_form(form) }}

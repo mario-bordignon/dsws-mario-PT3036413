@@ -1,7 +1,7 @@
 from datetime import datetime
-from flask import render_template, session, redirect, url_for, current_app, flash
+from flask import render_template, session, redirect, url_for, flash
 from .. import db
-from ..models import User, Role, EmailEnviado
+from ..models import User, Role
 from ..email import notify_new_user
 from . import main
 from .forms import NameForm
@@ -27,16 +27,16 @@ def index():
             db.session.add(user)
             db.session.commit()
 
-            # Fixos sempre; a conta da caixa só se estiver marcada
-            destinatarios = list(current_app.config['FLASKY_DESTINATARIOS_FIXOS'])
-            caixa = current_app.config['FLASKY_CAIXA']
-            if form.enviar_caixa.data and caixa and caixa not in destinatarios:
-                destinatarios.append(caixa)
+            # Destinatários fixos + o e-mail digitado no formulário
+            resultados = notify_new_user(user, form.email.data)
+            falhas = [dest for dest, ok in resultados.items() if not ok]
 
-            if notify_new_user(user, destinatarios):
+            if not falhas:
                 flash('Usuário cadastrado e e-mail enviado com sucesso!', 'success')
             else:
-                flash('Usuário cadastrado, mas ocorreu um erro ao enviar o e-mail.', 'warning')
+                flash('Usuário cadastrado, mas não foi possível enviar e-mail para: '
+                      + ', '.join(falhas) + '. No sandbox do Mailgun, o endereço '
+                      'precisa estar autorizado.', 'warning')
 
             session['known'] = False
         else:
@@ -52,9 +52,3 @@ def index():
                            nome_completo=session.get('name'),
                            known=session.get('known', False),
                            users=todos_os_usuarios)
-
-
-@main.route('/emails')
-def emails_enviados():
-    todos_os_emails = EmailEnviado.query.order_by(EmailEnviado.data_hora.desc()).all()
-    return render_template('emails.html', emails=todos_os_emails)

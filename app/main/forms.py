@@ -1,17 +1,16 @@
-from flask import current_app
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, BooleanField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired, Length, Regexp
 
 
 class NameForm(FlaskForm):
-    name = StringField('Qual o seu nome?', validators=[DataRequired()])
-    enviar_caixa = BooleanField('Deseja enviar e-mail?')
-    submit = SubmitField('Enviar')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # O endereço vem da configuração, que só existe com o app ativo
-        self.enviar_caixa.label.text = (
-            f"Deseja enviar e-mail para {current_app.config['FLASKY_CAIXA']}?"
-        )
+    name = StringField('Qual é o seu nome?', validators=[DataRequired()])
+    email = StringField(
+        'Qual é o seu email (Envio de notificação do novo usuário)?',
+        validators=[
+            DataRequired(),
+            Length(max=254),
+            Regexp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$',
+                   message='Digite um e-mail válido.'),
+        ])
+    submit = SubmitField('Submit')

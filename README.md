@@ -9,15 +9,15 @@ Prontuário: PT3036413
 ```
 ├── app/
 │   ├── __init__.py        # create_app() (application factory) e extensões
-│   ├── models.py          # Role, User, EmailEnviado
-│   ├── email.py           # envio de e-mail via Mailgun + registro no banco
+│   ├── models.py          # Role, User
+│   ├── email.py           # envio de e-mail via Mailgun
 │   ├── main/              # blueprint "main"
 │   │   ├── __init__.py
 │   │   ├── errors.py      # páginas 404 e 500
 │   │   ├── forms.py       # NameForm
-│   │   └── views.py       # rotas: / e /emails
+│   │   └── views.py       # rota: /
 │   ├── static/            # favicon
-│   └── templates/         # base, index, emails, 404, 500
+│   └── templates/         # base, index, 404, 500
 ├── migrations/
 ├── tests/
 ├── config.py              # configurações (development / testing / production)
@@ -35,7 +35,16 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 pip install -r requirements.txt
 ```
 
-## 2. Criando o banco de dados
+## 2. Variáveis de ambiente
+
+Copie `.env.example` para `.env` e preencha com as chaves do Mailgun.
+O `.env` não vai para o GitHub.
+
+A cada novo usuário, o e-mail vai para o destinatário fixo (`config.py`) e para o
+e-mail digitado no formulário. No sandbox do Mailgun, o endereço digitado precisa
+estar na lista de *authorized recipients*.
+
+## 3. Criando o banco de dados
 
 ```powershell
 flask shell
