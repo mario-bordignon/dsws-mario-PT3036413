@@ -28,20 +28,72 @@
         <tr>
             <th>Nome do usuário</th>
             <th>Função</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
         {% for user in users %}
         <tr>
-            <td>{{ user.username }}</td>
+            <td>
+                <!-- Modo visualização -->
+                <div class="modo-ver">
+                    <span style="display: inline-block; min-width: 8em;">{{ user.username }}</span>
+                    <button type="button" class="btn btn-default btn-xs btn-editar">Editar</button>
+                </div>
+                <!-- Modo edição (aparece ao clicar em Editar) -->
+                <form method="post" action="{{ url_for('main.editar_usuario', user_id=user.id) }}"
+                      class="modo-editar" style="display: none;">
+                    {{ edit_form.hidden_tag() }}
+                    <input type="text" name="name" value="{{ user.username }}" maxlength="64" required
+                           class="form-control input-sm" style="display: inline-block; width: 12em;">
+                    <button type="button" class="btn btn-default btn-xs btn-cancelar">Cancelar</button>
+                    <button type="submit" class="btn btn-primary btn-xs">Salvar</button>
+                </form>
+            </td>
             <td>{{ user.role.name if user.role else '—' }}</td>
+            <td>
+                <form method="post" action="{{ url_for('main.excluir_usuario', user_id=user.id) }}"
+                      style="display: inline;"
+                      onsubmit="return confirm('Deseja realmente excluir este usuário?')">
+                    {{ delete_form.hidden_tag() }}
+                    <button type="submit" class="btn btn-danger btn-xs">Excluir</button>
+                </form>
+            </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="2">Nenhum usuário cadastrado ainda.</td>
+            <td colspan="3">Nenhum usuário cadastrado ainda.</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Alterna a linha entre "visualizar" e "editar"
+    document.addEventListener('click', function (e) {
+        var editar = e.target.closest('.btn-editar');
+        var cancelar = e.target.closest('.btn-cancelar');
+        if (!editar && !cancelar) { return; }
+
+        var celula = e.target.closest('td');
+        var ver = celula.querySelector('.modo-ver');
+        var form = celula.querySelector('.modo-editar');
+
+        if (editar) {
+            ver.style.display = 'none';
+            form.style.display = '';
+            var campo = form.querySelector('input[name="name"]');
+            campo.focus();
+            campo.select();
+        } else {
+            form.reset();   // volta ao nome original
+            form.style.display = 'none';
+            ver.style.display = '';
+        }
+    });
+</script>
 {% endblock %}

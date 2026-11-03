@@ -4,7 +4,7 @@ from .. import db
 from ..models import User, Role
 from ..email import notify_new_user
 from . import main
-from .forms import NameForm
+from .forms import NameForm, EditUserForm, DeleteForm
 
 
 # --- Relógio global (disponível em todos os templates) ---
@@ -51,4 +51,42 @@ def index():
                            form=form,
                            nome_completo=session.get('name'),
                            known=session.get('known', False),
-                           users=todos_os_usuarios)
+                           users=todos_os_usuarios,
+                           edit_form=EditUserForm(),
+                           delete_form=DeleteForm())
+
+
+@main.route('/usuarios/<int:user_id>/editar', methods=['POST'])
+def editar_usuario(user_id):
+    user = db.get_or_404(User, user_id)
+    form = EditUserForm()
+    if not form.validate_on_submit():
+        for erros in form.errors.values():
+            for erro in erros:
+                flash(erro, 'warning')
+        return redirect(url_for('.index'))
+
+    novo_nome = form.name.data.strip()
+    outro = User.query.filter(User.username == novo_nome,
+                              User.id != user.id).first()
+    if outro:
+        flash('Já existe um usuário com esse nome.', 'warning')
+        return redirect(url_for('.index'))
+
+    user.username = novo_nome
+    db.session.commit()
+    flash('Nome do usuário atualizado com sucesso.', 'success')
+    return redirect(url_for('.index'))
+
+
+@main.route('/usuarios/<int:user_id>/excluir', methods=['POST'])
+def excluir_usuario(user_id):
+    user = db.get_or_404(User, user_id)
+    form = DeleteForm()
+    if form.validate_on_submit():
+        db.session.delete(user)
+        db.session.commit()
+        flash('Usuário removido com sucesso.', 'success')
+    else:
+        flash('Não foi possível excluir o usuário. Tente novamente.', 'warning')
+    return redirect(url_for('.index'))
